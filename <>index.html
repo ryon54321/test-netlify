@@ -1,3 +1,329 @@
-<html>
-    <h1>ウェブサイト</h1>
-    </html>
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>○○さん家の畑</title>
+    <style>
+        /* 背景画像の設定 */
+        body {
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            overflow: hidden;
+            position: relative;
+        }
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url('https://cdn-ak.f.st-hatena.com/images/fotolife/t/tukishiromia/20240322/20240322083545.jpg');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            opacity: 0.5;
+            z-index: -1;
+        }
+
+        /* 全体のレイアウト */
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        .language-switcher {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+        }
+        .language-switcher button {
+            margin-left: 5px;
+        }
+        h1, h2 {
+            margin: 0;
+        }
+        #title {
+            margin-bottom: 20px;
+        }
+
+        /* SVG のレイアウト */
+        #field-svg {
+            border: 1px solid #ccc;
+            margin-bottom: 20px;
+        }
+        
+        /* フォームのスタイル */
+        #field-form {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            width: 100%;
+            max-width: 500px;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        #field-form label {
+            margin: 10px 0 5px;
+        }
+        #field-form input, #field-form textarea, #field-form select {
+            width: 100%;
+            margin-bottom: 15px;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        #add-task-button {
+            align-self: center;
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        #add-task-button:hover {
+            background-color: #0056b3;
+        }
+
+        /* タスク情報 */
+        .task-info {
+            font-size: 12px;
+            color: #000;
+            background-color: rgba(255, 255, 255, 0.8);
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            padding: 5px;
+            margin: 5px;
+            white-space: pre-wrap;
+        }
+        .task-info div {
+            margin-bottom: 5px;
+        }
+        .task-info input[type="checkbox"] {
+            margin-right: 5px;
+        }
+
+        /* SVGの四角形の色 */
+        .plot.bg.no-task {
+            fill: #d2b48c; /* 茶色 */
+        }
+        .plot.bg.has-task {
+            fill: #ff6347; /* 赤色 */
+        }
+        .plot.bg.completed {
+            fill: #90ee90; /* 黄緑色 */
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="language-switcher">
+            <button onclick="switchLanguage('ja')">日本語</button>
+            <button onclick="switchLanguage('en')">English</button>
+        </div>
+
+        <h1 id="title">○○さん家の畑</h1>
+
+        <svg id="field-svg" width="600" height="400">
+            <!-- 畑の背景の丸角長方形 -->
+            <rect rx="20" ry="20" x="10" y="10" width="100" height="380" class="plot bg no-task" data-id="field1"></rect>
+            <rect rx="20" ry="20" x="120" y="10" width="100" height="380" class="plot bg no-task" data-id="field2"></rect>
+            <rect rx="20" ry="20" x="230" y="10" width="100" height="380" class="plot bg no-task" data-id="field3"></rect>
+            <rect rx="20" ry="20" x="340" y="10" width="100" height="380" class="plot bg no-task" data-id="field4"></rect>
+            <rect rx="20" ry="20" x="450" y="10" width="100" height="380" class="plot bg no-task" data-id="field5"></rect>
+
+            <!-- 畑のイラスト -->
+            <image href="https://japaclip.com/files/tomato.png" x="10" y="150" width="100" height="100" data-id="field1"></image>
+            <image href="https://japaclip.com/files/carrot.png" x="120" y="150" width="100" height="100" data-id="field2"></image>
+            <image href="https://japaclip.com/files/eggplant.png" x="230" y="150" width="100" height="100" data-id="field3"></image>
+            <image href="https://japaclip.com/files/cabbage.png" x="340" y="150" width="100" height="100" data-id="field4"></image>
+            <image href="https://japaclip.com/files/cucumber.png" x="450" y="150" width="100" height="100" data-id="field5"></image>
+
+            <!-- 名前とやることを表示 -->
+            <foreignObject x="10" y="10" width="100" height="380" data-id="field1">
+                <div xmlns="http://www.w3.org/1999/xhtml" class="task-info" id="text-field1">
+                    <div id="field1-name">-</div>
+                    <div id="field1-task">-</div>
+                </div>
+            </foreignObject>
+            <foreignObject x="120" y="10" width="100" height="380" data-id="field2">
+                <div xmlns="http://www.w3.org/1999/xhtml" class="task-info" id="text-field2">
+                    <div id="field2-name">-</div>
+                    <div id="field2-task">-</div>
+                </div>
+            </foreignObject>
+            <foreignObject x="230" y="10" width="100" height="380" data-id="field3">
+                <div xmlns="http://www.w3.org/1999/xhtml" class="task-info" id="text-field3">
+                    <div id="field3-name">-</div>
+                    <div id="field3-task">-</div>
+                </div>
+            </foreignObject>
+            <foreignObject x="340" y="10" width="100" height="380" data-id="field4">
+                <div xmlns="http://www.w3.org/1999/xhtml" class="task-info" id="text-field4">
+                    <div id="field4-name">-</div>
+                    <div id="field4-task">-</div>
+                </div>
+            </foreignObject>
+            <foreignObject x="450" y="10" width="100" height="380" data-id="field5">
+                <div xmlns="http://www.w3.org/1999/xhtml" class="task-info" id="text-field5">
+                    <div id="field5-name">-</div>
+                    <div id="field5-task">-</div>
+                </div>
+            </foreignObject>
+        </svg>
+
+        <h2 id="form-title">お手伝いのお願い！</h2>
+        <form id="field-form">
+            <label for="field-name" id="label-name">お願いしたい人:</label>
+            <input type="text" id="field-name" name="field-name"><br>
+            <label for="task" id="label-task">今日のやること:</label>
+            <textarea id="task" name="task"></textarea><br>
+            <label for="field-select" id="label-select">畑を選択:</label>
+            <select id="field-select">
+                <option value="field1">畑1</option>
+                <option value="field2">畑2</option>
+                <option value="field3">畑3</option>
+                <option value="field4">畑4</option>
+                <option value="field5">畑5</option>
+            </select><br>
+            <button type="button" id="add-task-button" onclick="addTask()">追加</button>
+        </form>
+    </div>
+
+    <script>
+        // 言語データ
+        const texts = {
+            en: {
+                title: "Field of ○○'s House",
+                formTitle: "Request for Help!",
+                labelName: "Name of person to ask:",
+                labelTask: "Today's Task:",
+                labelSelect: "Select Field:",
+                addTaskButton: "Add",
+                fields: ["Field 1", "Field 2", "Field 3", "Field 4", "Field 5"]
+            },
+            ja: {
+                title: "○○さん家の畑",
+                formTitle: "お手伝いのお願い！",
+                labelName: "お願いしたい人:",
+                labelTask: "今日のやること:",
+                labelSelect: "畑を選択:",
+                addTaskButton: "追加",
+                fields: ["畑1", "畑2", "畑3", "畑4", "畑5"]
+            }
+        };
+
+        // 単純な翻訳辞書
+        const translations = {
+            'Name': { en: 'Name', ja: '名前' },
+            'Task': { en: 'Task', ja: 'やること' },
+        };
+
+        // 簡単な翻訳関数
+        function translateText(text, lang) {
+            const translations = {
+                'ja': {
+                    'tomato': 'トマト',
+                    'carrot': 'ニンジン',
+                    'eggplant': 'ナス',
+                    'cabbage': 'キャベツ',
+                    'cucumber': 'キュウリ'
+                },
+                'en': {
+                    'トマト': 'Tomato',
+                    'ニンジン': 'Carrot',
+                    'ナス': 'Eggplant',
+                    'キャベツ': 'Cabbage',
+                    'キュウリ': 'Cucumber'
+                }
+            };
+
+            return translations[lang][text] || text;
+        }
+
+        function switchLanguage(lang) {
+            document.getElementById('title').textContent = texts[lang].title;
+            document.getElementById('form-title').textContent = texts[lang].formTitle;
+            document.getElementById('label-name').textContent = texts[lang].labelName;
+            document.getElementById('label-task').textContent = texts[lang].labelTask;
+            document.getElementById('label-select').textContent = texts[lang].labelSelect;
+            document.getElementById('add-task-button').textContent = texts[lang].addTaskButton;
+
+            const fieldSelect = document.getElementById('field-select');
+            fieldSelect.innerHTML = '';
+            texts[lang].fields.forEach((field, index) => {
+                const option = document.createElement('option');
+                option.value = `field${index + 1}`;
+                option.textContent = field;
+                fieldSelect.appendChild(option);
+            });
+        }
+
+        function addTask() {
+            const name = document.getElementById('field-name').value;
+            const task = document.getElementById('task').value;
+            const selectedField = document.getElementById('field-select').value;
+
+            const nameElement = document.getElementById(`${selectedField}-name`);
+            const taskElement = document.getElementById(`${selectedField}-task`);
+            const backgroundRect = document.querySelector(`rect[data-id="${selectedField}"]`);
+
+            const lang = document.querySelector('button.active')?.dataset.lang || 'ja';
+            
+            const nameTranslation = translations['Name'][lang] || 'Name';
+            const taskTranslation = translations['Task'][lang] || 'Task';
+
+            const tasks = task.split('\n').map(t => t.trim()).filter(t => t.length > 0);
+            let taskHtml = '';
+            tasks.forEach((t, index) => {
+                taskHtml += `<div><input type="checkbox" id="task-${selectedField}-${index}" onchange="updateTaskColor('${selectedField}')"> ${t}</div>`;
+            });
+
+            if (name && task) {
+                if (nameElement) nameElement.textContent = `${nameTranslation}:\n${name}`;
+                if (taskElement) taskElement.innerHTML = `${taskTranslation}:<br>${taskHtml}`;
+
+                if (backgroundRect) {
+                    backgroundRect.setAttribute('class', 'plot bg has-task');
+                }
+            } else {
+                if (backgroundRect) {
+                    backgroundRect.setAttribute('class', 'plot bg no-task');
+                }
+                if (nameElement) nameElement.textContent = `${nameTranslation}: -`;
+                if (taskElement) taskElement.innerHTML = `${taskTranslation}: -`;
+            }
+        }
+
+        function updateTaskColor(fieldId) {
+            const checkboxes = document.querySelectorAll(`input[id^="task-${fieldId}-"]`);
+            const allChecked = Array.from(checkboxes).every(checkbox => checkbox.checked);
+            const backgroundRect = document.querySelector(`rect[data-id="${fieldId}"]`);
+
+            if (allChecked) {
+                if (backgroundRect) {
+                    backgroundRect.setAttribute('class', 'plot bg completed');
+                }
+            } else {
+                const hasTask = Array.from(checkboxes).some(checkbox => checkbox.checked);
+                if (backgroundRect) {
+                    backgroundRect.setAttribute('class', hasTask ? 'plot bg has-task' : 'plot bg no-task');
+                }
+            }
+        }
+
+        // 初期言語設定
+        switchLanguage('ja');
+    </script>
+</body>
+</html>
